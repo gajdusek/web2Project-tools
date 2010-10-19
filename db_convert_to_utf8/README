@@ -1,0 +1,39 @@
+db_convert_to_utf8.sh and db_convert_to_utf8.php scripts.
+
+GENERAL INFORMATION
+
+These scripts will output SQL statements to convert web2Project database
+to utf8. Run resulting SQL statements (i.e. via phpmyadmin) and then
+change $dbcharset option in config.php to utf8. Please make sure that
+you use web2Project version with $dbcharset option implemented.
+
+If your database connection charset is already utf8 you can safely
+change this option to utf8 directly.  Otherwise you must first convert
+all strings stored in database to utf8 and then immediately set this
+option to utf8.  You will end with damaged tables content if database
+will be updated by any web2Project user after you convert strings to
+utf8 and before you set 'dbcharset' option to utf8.
+
+SCRIPTS USAGE
+
+1) db_convert_to_utf8.sh
+Run without parameters to get full help displayed. 
+Script parameters are same as mysqladmin options, 
+i.e: ./db_convert_to_utf8.sh -h <host> -u <user> -p[<password>] <database> >> web2project_convert.sql
+Run web2project_convert.sql via phpmyadmin or mysqladmin etc.
+
+2) db_convert_to_utf8.php
+Copy this this script to web2Project root directory, point you browser
+to this script. It will print sql statements to convert database, run
+these statements via phpmyadmin. Don't forget to delete this script
+after you are done.
+
+IMPORTANT WARNINGS:
+
+* Scripts will convert all tables in the database. Tables' prefix is
+not supported (because it is not fully supported by current web2Project
+version).
+
+* VERY IMPORTANT: Make sure tables content will not be updated until you
+finish database conversion and set new $dbcharset value!
+
