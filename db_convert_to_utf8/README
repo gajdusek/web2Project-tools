@@ -4,8 +4,8 @@ GENERAL INFORMATION
 
 These scripts will output SQL statements to convert web2Project database
 to utf8. Run resulting SQL statements (i.e. via phpmyadmin) and then
-change $dbcharset option in config.php to utf8. Please make sure that
-you use web2Project version with $dbcharset option implemented.
+change $w2Pconfig['dbcharset'] option in config.php to utf8. Please make
+sure that you use web2Project version with $dbcharset option implemented.
 
 If your database connection charset is already utf8 you can safely
 change this option to utf8 directly.  Otherwise you must first convert
@@ -35,5 +35,5 @@ not supported (because it is not fully supported by current web2Project
 version).
 
 * VERY IMPORTANT: Make sure tables content will not be updated until you
-finish database conversion and set new $dbcharset value!
+finish database conversion and set new $w2Pconfig['dbcharset'] value!
 

@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: text/plain');
 //TODO: add support for database prefixes
 require_once './base.php';
 require_once W2P_BASE_DIR . '/includes/main_functions.php';
@@ -48,6 +49,7 @@ class dbConvertToUTF8 {
     	$dbConn = $this->_openDBConnection();
     	if ($dbConn) {
     		if (!$this->_precheck($dbConn)) die;
+    		$this->convertSQL .= sprintf("USE `%s`;\n\n", $this->configOptions['dbname']);
 			$sql = "SHOW TABLES;";
         	$res = $dbConn->Execute($sql);
         	$tables=array();
@@ -66,15 +68,15 @@ class dbConvertToUTF8 {
 	    	  				}
 	    	  				/* set old charset */
 	    	  				$this->convertSQL .= 
-	    	  				sprintf('ALTER TABLE `%s` CHANGE `%s` `%s` `%s` CHARACTER SET `%s`;'."\n",
+	    	  				sprintf('ALTER TABLE `%s` CHANGE `%s` `%s` %s CHARACTER SET `%s`;'."\n",
 	    	  				$tbl, $col->name, $col->name, $type, $this->oldCharset); 
 	    	  				/* convert to corresponding binary type */ 
 	    	  				$this->convertSQL .= 
-	    	  				sprintf('ALTER TABLE `%s` CHANGE `%s` `%s` `%s`;'."\n", 
+	    	  				sprintf('ALTER TABLE `%s` CHANGE `%s` `%s` %s;'."\n", 
 	    	  				$tbl, $col->name, $col->name, $temp_type);
 	    	  				/* conver back to original type with utf8 charset */ 
 	    	  				$this->convertSQL .= 
-	    	  				sprintf('ALTER TABLE `%s` CHANGE `%s` `%s` `%s` CHARACTER SET utf8;'."\n",
+	    	  				sprintf('ALTER TABLE `%s` CHANGE `%s` `%s` %s CHARACTER SET `utf8`;'."\n",
 	    	  				$tbl, $col->name, $col->name, $type);
 	    	  				$this->convertSQL .= "\n";
 	    	  				 
@@ -85,7 +87,7 @@ class dbConvertToUTF8 {
       		/* rebuild table indexes */
   			/* TODO: this works only with MySQL MyISAM tables */
   			foreach(array_keys($tables,tru) as $tbl) {
-	      		$this->convertSQL .= sprintf('REPAR TABLE `%s` QUICK;'."\n", $tbl);
+	      		$this->convertSQL .= sprintf('REPAIR TABLE `%s` QUICK;'."\n", $tbl);
   			} 
   			
     	}
@@ -93,7 +95,7 @@ class dbConvertToUTF8 {
     
     private function _precheck($dbConn) {
     	if (!isset($this->configOptions['dbcharset'])) {
-    		echo "# Warning: \$dbcharset not set in config file. Please apply patch and add \$dbcharset='' to web2project config file first!\n";
+    		echo "# Warning: \$w2Pconfig['dbcharset'] not set in config file. Please apply patch and add \$w2Pconfig['dbcharset'] = ''; to web2project config file first!\n";
     		die;
     	}
     	if ($this->configOptions['dbcharset'] == 'utf8') {
@@ -101,20 +103,21 @@ class dbConvertToUTF8 {
     		die;
     	}
     	if ($this->configOptions['dbcharset'] <> '') {
-    		echo "# Error: \$dbcharset in web2project config file is already set but not to expected 'utf8'! Only utf8 is supported!.\n";
+    		echo "# Error: \$w2Pconfig['dbcharset'] in web2project config file is already set but not to expected 'utf8'! Only utf8 is supported!.\n";
     		die;
     	}
     	$this->oldCharset = mysql_client_encoding($dbConn->_connectionID);
     	echo '# Current database connection charset is '.$this->oldCharset,"\n";
     	if ($this->oldCharset == 'utf8') {
-    		echo "# Current database connection charset is already utf8. No database conversion needed. Please set \$dbcharset config file value to 'utf8' and you are done.\n";
+    		echo "# Current database connection charset is already utf8. No database conversion needed. Please set \$w2Pconfig['dbcharset'] config file value to 'utf8' and you are done.\n";
     		die;	
     	}
     	echo "# SQL statements for database conversion to utf8 will be printed. Run these SQL statements (i.e. within phpmyadmin) and \n";
     	echo "# then set \$dbcharset config file value to 'utf8'.\n";
-    	echo "# WARNING: Script will convert all tables in the database. Tables' prefix is not supported (because it is not fully supported by current web2Project
-version).\n";
-    	echo "# IMPORTANT WARNING: Make sure tables content will not be updated until you finish database conversion and set new \$dbcharset value!\n";
+    	echo "# WARNING: Script will convert all tables in the database. Tables' prefix is not supported (because it is not fully supported by current web2Project version).\n";
+    	echo "# IMPORTANT WARNING: Make sure tables content will not be updated until you finish database conversion and set new \$w2Pconfig['dbcharset'] value!\n";
+    	echo "\n";
+    	return true;
     }
 	
 	private function _openDBConnection() {

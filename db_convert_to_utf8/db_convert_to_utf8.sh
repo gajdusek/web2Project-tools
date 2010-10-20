@@ -13,25 +13,27 @@ OPTIONS:
 EOF
 }
 
-if [ $# -eq 0 ];
-then
+if [ $# -eq 0 ]; then
      usage
      exit 1
 fi
 
 mysql="mysql $*"
 oldcharset=$($mysql variables | grep '^[[:blank:]]*default-character-set' | awk '{print $2}')
+database=$(echo 'SELECT DATABASE()' | $mysql | sed '1d');
 echo '# Current database connection charset is '$oldcharset;
 if [ $oldcharset == "utf8" ]; then
 	echo "# Current database connection charset is already utf8. No database conversion needed. Please set \$dbcharset config file value to 'utf8' and you are done.";
 	exit
 fi
-echo "# SQL statements for database conversion to utf8 will be printed. Run these SQL statements (i.e. within phpmyadmin) and";
-echo "# then set \$dbcharset config file value to 'utf8'.";
-echo "# WARNING: Script will convert all tables in the database. Tables' prefix is not supported (because it is not fully supported by current web2Project
-version)."
+echo "# SQL statements for database conversion to utf8 will be printed. Run these SQL statements (i.e. within phpmyadmin or other mysql client) and";
+echo "# then set \$w2Pconfig['dbcharset'] config file value to 'utf8'.";
+echo "# WARNING: Script will convert all tables in the database. Tables' prefix is not supported (because it is not fully supported by current web2Project version)."
 
-echo "# IMPORTANT WARNING: Make sure tables content will not be updated until you finish database conversion and set new \$dbcharset value!";
+echo "# IMPORTANT WARNING: Make sure tables content will not be updated until you finish database conversion and set new \$w2Pconfig['dbcharset'] value!";
+echo
+
+echo "USE \`$database\`;"
 echo
 
 excluded_tables=(
@@ -69,15 +71,15 @@ while read table col a_type; do
 		'varchar') new_type='varbinary('$type_size')'; type=$a_type ;;
 		*) exit 1 ;;
 	esac
-	echo 'alter table `'$table'` change `'$col'` `'$col'` '$type' CHARACTER SET `'$oldcharset'`;'
-	echo 'alter table `'$table'` change `'$col'` `'$col'` '$new_type';'
-	echo 'alter table `'$table'` change `'$col'` `'$col'` '$type' CHARACTER SET `utf8`;'
+	echo 'ALTER TABLE `'$table'` CHANGE `'$col'` `'$col'` '$type' CHARACTER SET `'$oldcharset'`;'
+	echo 'ALTER TABLE `'$table'` CHANGE `'$col'` `'$col'` '$new_type';'
+	echo 'ALTER TABLE `'$table'` CHANGE `'$col'` `'$col'` '$type' CHARACTER SET `utf8`;'
 	echo
 	echo $table >>$altered_tables
 done
 
 echo
 cat $altered_tables|uniq|while read table; do
-	echo 'repair table `'$table'` quick;'	
+	echo 'REPAIR TABLE `'$table'` QUICK;'	
 done
 rm $altered_tables
