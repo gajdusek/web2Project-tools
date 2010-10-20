@@ -1,0 +1,27 @@
+Use l10n_sort.sh to sort localization .inc files in consistent way
+
+CONCEPT
+
+Most of current available .inc files are sorted case insensitive. But
+there are many exceptions, especially recently added strings are not
+sorted.  If you have edited translations in w2p translation manager
+in past saved strings were sorted in different way (case sensitive)
+and newly added strings where attached to the tail unsorted at all.
+
+I wrote a patch that will keep sorting of w2p
+edited files consistent with upstream sorting style. See
+http://github.com/gajdusek/web2project/commits/consistent_sorting_of_localization_files
+and previous commit.
+
+Script l10n_sort.sh can be used to repair sorting of .inc files directly,
+without need to save them in w2p translation management. It was used
+to resort .inc files in mentioned patch and so since the patch will
+be accepted to upstream, sorting style of localization files edited in
+w2p translation management will be kept consistent for eternity. But if
+you add strings directly by editing .inc files you should resort them
+(using this script or other way).
+
+This way the sorting style will be kept coherent and localization files
+easier to maintain (i.e. to show diffs of new additions, especialy usefull
+for check english files, that can be sometimes enhance by translator
+with changes usefull for others).
