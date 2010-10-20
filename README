@@ -5,3 +5,5 @@ Content:
 
 * db_convert_to_utf8:
 	scripts to convert database content from default charset to utf8.
+* l10n_sort.sh 
+	to resort localization .inc files in consistent style
