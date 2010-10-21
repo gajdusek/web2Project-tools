@@ -25,3 +25,15 @@ This way the sorting style will be kept coherent and localization files
 easier to maintain (i.e. to show diffs of new additions, especialy usefull
 for check english files, that can be sometimes enhance by translator
 with changes usefull for others).
+
+Usage: 
+	./sort_l10n.sh <file> <file> ...
+	This will sort localization .inc files given as parameters. Bash
+	wildcards in filenames will be parsed.
+
+	All ends of lines will be converted to consistent style (default
+	to unix style). This can be changed by editing EOL_CONVERTOR
+	variable in front of this script.
+
+Example:
+	find web2project/locales -type f -iname '*.inc' -print0 | xargs -0 ./sort_l10n.sh
