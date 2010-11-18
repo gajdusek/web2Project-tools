@@ -42,7 +42,7 @@ for file in $@; do
 	backup_file="${file}~"
 	cp "$file" "$backup_file"
 	sed -n '/^#/p' "$backup_file" >"$file"
-	sed '/^#/d' "$backup_file" | LC_ALL=C sort -f >>"$file"
+	sed '/^#/d' "$backup_file" | LC_ALL=C sort -f -k2,2 -t "'" | uniq >>"$file"
 	if [ -n "$EOL_CONVERTOR" ]; then $EOL_CONVERTOR "$file"; fi
 	rm -f "$backup_file"
 done
